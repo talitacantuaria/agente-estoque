@@ -3,10 +3,9 @@ services:
     name: agente-estoque-wms
     runtime: node
     plan: free
-    buildCommand: npm install
-    startCommand: node server.js
+    buildCommand: npm ci
+    startCommand: npm start
+    healthCheckPath: /api/dashboard
     envVars:
       - key: NODE_VERSION
         value: 22.14.0
-      - key: PORT
-        value: 10000

@@ -18,6 +18,12 @@ O sistema inicializa o banco de dados SQLite local (`estoque.db`), aplica a carg
 
 🔗 **Acesse no navegador:** [http://localhost:3000](http://localhost:3000)
 
+### Deploy no Render
+
+O repositório inclui `render.yaml` para criar o serviço web automaticamente. No Render, selecione **New > Blueprint** e conecte este repositório; o arquivo configura a instalação com `npm ci`, inicialização com `npm start` e verificação de saúde em `/api/dashboard`.
+
+> **Atenção ao plano gratuito:** o SQLite fica no disco local do serviço e não possui persistência garantida no Render Free. Alterações no estoque podem ser perdidas quando a instância reiniciar ou for implantada novamente. Para manter dados de produção, configure armazenamento persistente (em plano compatível) ou migre para um banco de dados gerenciado.
+
 ---
 
 ## 🌟 Principais Funcionalidades
@@ -93,4 +99,3 @@ Execute a suíte de testes de conformidade operacional:
 node test-server.js
 ```
 Todos os cenários de teste são validados automaticamente contra o banco de dados SQLite.
-
