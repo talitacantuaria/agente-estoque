@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Portal do Colaborador & WMS | AgenteEstoque</title>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#f0fdf4',
+              100: '#dcfce7',
+              500: '#22c55e',
+              600: '#16a34a',
+              700: '#15803d',
+              800: '#166534',
+              900: '#14532d'
+            },
+            wms: {
+              dark: '#0f172a',
+              card: '#1e293b',
+              border: '#334155',
+              accent: '#38bdf8'
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Custom Styles -->
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col font-sans antialiased selection:bg-emerald-500 selection:text-white pb-12">
+
+  <!-- ======================================================== -->
+  <!-- TOP NAVIGATION BAR COM ALTERNADOR DE PERFIL              -->
+  <!-- ======================================================== -->
+  <header class="bg-slate-800/95 backdrop-blur border-b border-slate-700/80 sticky top-0 z-40 shadow-lg">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        
+        <!-- Logo e Título -->
+        <div class="flex items-center space-x-3 cursor-pointer" onclick="switchAppMode('kiosk')">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-500 via-teal-500 to-cyan-500 flex items-center justify-center shadow-lg shadow-emerald-500/20 text-white font-bold text-xl">
+            <i data-lucide="store" id="main-logo-icon" class="w-6 h-6"></i>
+          </div>
+          <div>
+            <div class="flex items-center space-x-2">
+              <span class="font-black text-lg tracking-tight text-white" id="app-title-text">Almoxarifado Express</span>
+              <span id="app-badge-mode" class="px-2 py-0.5 text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 rounded-full uppercase tracking-wider">Portal da Empresa</span>
+            </div>
+            <p class="text-xs text-slate-400 hidden sm:block" id="app-subtitle-text">Solicite materiais e ferramentas com retirada imediata</p>
+          </div>
+        </div>
+
+        <!-- MODO SWITCHER (O Grande Diferencial Criativo) -->
+        <div class="flex items-center bg-slate-900/90 p-1 rounded-xl border border-slate-700/80">
+          <button 
+            id="mode-btn-kiosk" 
+            onclick="switchAppMode('kiosk')" 
+            class="mode-switch-btn flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition bg-emerald-600 text-white shadow-sm"
+          >
+            <i data-lucide="shopping-bag" class="w-4 h-4"></i>
+            <span class="hidden sm:inline">Para Você (Colaborador)</span>
+            <span class="sm:hidden">Loja</span>
+          </button>
+          
+          <button 
+            id="mode-btn-wms" 
+            onclick="switchAppMode('wms')" 
+            class="mode-switch-btn flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-400 hover:text-slate-200 transition"
+          >
+            <i data-lucide="boxes" class="w-4 h-4"></i>
+            <span class="hidden sm:inline">Operações WMS (Galpão)</span>
+            <span class="sm:hidden">WMS</span>
+          </button>
+        </div>
+
+        <!-- Navigation Tabs (Modo WMS) -->
+        <nav id="wms-desktop-nav" class="hidden items-center space-x-1">
+          <button onclick="navigate('dashboard')" id="nav-dashboard" class="nav-btn flex items-center space-x-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors">
+            <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
+            <span>Painel</span>
+          </button>
+          <button onclick="navigate('lookup')" id="nav-lookup" class="nav-btn flex items-center space-x-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors">
+            <i data-lucide="map-pin" class="w-4 h-4"></i>
+            <span>Localizar</span>
+          </button>
+          <button onclick="navigate('inventory')" id="nav-inventory" class="nav-btn flex items-center space-x-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors">
+            <i data-lucide="clipboard-check" class="w-4 h-4"></i>
+            <span>Inventário</span>
+          </button>
+          <button onclick="navigate('transfers')" id="nav-transfers" class="nav-btn flex items-center space-x-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors">
+            <i data-lucide="arrow-left-right" class="w-4 h-4"></i>
+            <span>Auditoria</span>
+          </button>
+        </nav>
+
+        <!-- Right Side: Carrinho de Retirada & Assistente -->
+        <div class="flex items-center space-x-2 sm:space-x-3">
+          <!-- Botão do Carrinho (Portal do Colaborador) -->
+          <button 
+            id="btn-open-cart" 
+            onclick="toggleCartDrawer(true)" 
+            class="relative flex items-center gap-2 px-3 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs shadow-lg shadow-emerald-600/30 transition transform active:scale-95"
+          >
+            <i data-lucide="shopping-cart" class="w-4 h-4"></i>
+            <span class="hidden sm:inline">Minha Cesta</span>
+            <span id="cart-counter-badge" class="px-1.5 py-0.2 bg-white text-emerald-900 rounded-full font-black text-[11px] min-w-[18px] text-center">0</span>
+          </button>
+
+          <!-- Botão Assistente IA -->
+          <button onclick="navigate('chat')" id="nav-chat" title="Falar com o Assistente" class="p-2 rounded-xl bg-slate-700/80 hover:bg-slate-700 text-emerald-400 border border-slate-600/60 transition">
+            <i data-lucide="bot" class="w-5 h-5"></i>
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </header>
+
+  <!-- Container de Notificações Toast -->
+  <div id="toast-container" class="fixed top-20 right-4 z-50 flex flex-col space-y-2 pointer-events-none"></div>
+
+  <!-- ======================================================== -->
+  <!-- MODO 1: PORTAL DO COLABORADOR (PARA QUALQUER PESSOA)     -->
+  <!-- ======================================================== -->
+  <section id="section-kiosk-mode" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-8">
+    
+    <!-- Hero Banner Amigável & Criativo -->
+    <div class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-slate-900 via-slate-800 to-emerald-950 p-6 sm:p-10 border border-slate-700/80 shadow-2xl">
+      <div class="relative z-10 max-w-3xl space-y-4">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-bold uppercase tracking-wider">
+          <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+          <span>Autoatendimento Corporativo</span>
+        </div>
+
+        <h1 class="text-3xl sm:text-4xl font-black text-white tracking-tight leading-tight">
+          O que você precisa para o seu dia de trabalho?
+        </h1>
+
+        <p class="text-slate-300 text-sm sm:text-base leading-relaxed">
+          Encontre ferramentas, EPIs, materiais elétricos ou caixas organizadoras em segundos. Pegue com 1 clique e veja a rota exata de onde retirar no galpão.
+        </p>
+
+        <!-- Barra de Busca Criativa -->
+        <div class="pt-2">
+          <div class="relative max-w-2xl">
+            <i data-lucide="search" class="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 text-emerald-400"></i>
+            <input 
+              type="text" 
+              id="kiosk-search-input" 
+              placeholder="Digite o que procura... Ex: 'fita preta', 'luva', 'caixa', 'parafuso'..." 
+              class="w-full bg-slate-900/90 border-2 border-slate-700 hover:border-emerald-500/60 focus:border-emerald-500 rounded-2xl pl-12 pr-28 py-3.5 text-sm sm:text-base text-white placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-emerald-500/20 transition shadow-inner"
+              oninput="filterKioskProducts()"
+            >
+            <div class="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1.5">
+              <button onclick="openBarcodeScannerModal()" title="Bipar código de barras" class="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-slate-700 text-xs">
+                <i data-lucide="scan-barcode" class="w-4 h-4"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Chips de Categorias e Kits Prontos -->
+        <div class="flex flex-wrap items-center gap-2 pt-2">
+          <span class="text-xs font-semibold text-slate-400">Atalhos:</span>
+          <button onclick="setKioskCategoryFilter('ALL')" class="kiosk-cat-chip active px-3 py-1 rounded-xl text-xs font-bold transition">🌟 Todos</button>
+          <button onclick="setKioskCategoryFilter('EPI')" class="kiosk-cat-chip px-3 py-1 rounded-xl text-xs font-semibold transition">🦺 Segurança & EPIs</button>
+          <button onclick="setKioskCategoryFilter('Elétrica')" class="kiosk-cat-chip px-3 py-1 rounded-xl text-xs font-semibold transition">⚡ Elétrica & Manutenção</button>
+          <button onclick="setKioskCategoryFilter('Fixadores')" class="kiosk-cat-chip px-3 py-1 rounded-xl text-xs font-semibold transition">🔩 Parafusos & Porcas</button>
+          <button onclick="setKioskCategoryFilter('Armazenagem')" class="kiosk-cat-chip px-3 py-1 rounded-xl text-xs font-semibold transition">📦 Escritório & Arquivo</button>
+          <button onclick="addSmartKit('EPI')" class="px-3 py-1 rounded-xl text-xs font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40 hover:bg-amber-500/30 transition flex items-center gap-1">
+            <i data-lucide="package-check" class="w-3.5 h-3.5"></i>
+            <span>Pegar Kit Fábrica</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Seção de Kits Rápidos Inteligentes -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <!-- Kit 1 -->
+      <div class="bg-slate-800/80 border border-slate-700/80 rounded-2xl p-4 flex items-center justify-between hover:border-emerald-500/40 transition shadow-sm">
+        <div class="flex items-center space-x-3">
+          <div class="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-2xl">
+            🦺
+          </div>
+          <div>
+            <h4 class="font-bold text-sm text-white">Kit Visita à Fábrica</h4>
+            <p class="text-xs text-slate-400">Luva Nitrílica + Botina Bico de Aço</p>
+          </div>
+        </div>
+        <button onclick="addSmartKit('EPI')" class="px-3 py-1.5 bg-emerald-600/20 hover:bg-emerald-600 text-emerald-300 hover:text-white rounded-xl text-xs font-bold border border-emerald-500/30 transition">
+          + Pegar Kit
+        </button>
+      </div>
+
+      <!-- Kit 2 -->
+      <div class="bg-slate-800/80 border border-slate-700/80 rounded-2xl p-4 flex items-center justify-between hover:border-emerald-500/40 transition shadow-sm">
+        <div class="flex items-center space-x-3">
+          <div class="w-12 h-12 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-2xl">
+            ⚡
+          </div>
+          <div>
+            <h4 class="font-bold text-sm text-white">Kit Manutenção Elétrica</h4>
+            <p class="text-xs text-slate-400">Fita 3M + Cabo 2.5mm + Disjuntor</p>
+          </div>
+        </div>
+        <button onclick="addSmartKit('ELETRICA')" class="px-3 py-1.5 bg-emerald-600/20 hover:bg-emerald-600 text-emerald-300 hover:text-white rounded-xl text-xs font-bold border border-emerald-500/30 transition">
+          + Pegar Kit
+        </button>
+      </div>
+
+      <!-- Kit 3 -->
+      <div class="bg-slate-800/80 border border-slate-700/80 rounded-2xl p-4 flex items-center justify-between hover:border-emerald-500/40 transition shadow-sm">
+        <div class="flex items-center space-x-3">
+          <div class="w-12 h-12 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-2xl">
+            📦
+          </div>
+          <div>
+            <h4 class="font-bold text-sm text-white">Kit Organização de Sala</h4>
+            <p class="text-xs text-slate-400">Caixa Organizadora 30L com Tampa</p>
+          </div>
+        </div>
+        <button onclick="addSmartKit('ORGANIZACAO')" class="px-3 py-1.5 bg-emerald-600/20 hover:bg-emerald-600 text-emerald-300 hover:text-white rounded-xl text-xs font-bold border border-emerald-500/30 transition">
+          + Pegar Kit
+        </button>
+      </div>
+    </div>
+
+    <!-- Catálogo Visual em Grade (Estilo Vitrine Criativa) -->
+    <div class="space-y-4">
+      <div class="flex items-center justify-between">
+        <div>
+          <h2 class="text-xl font-black text-white flex items-center gap-2">
+            <span>Vitrine de Materiais Disponíveis</span>
+            <span id="kiosk-item-count" class="text-xs px-2 py-0.5 rounded-full bg-slate-800 text-emerald-400 font-bold border border-slate-700">8 itens</span>
+          </h2>
+          <p class="text-xs text-slate-400">Clique em "Adicionar" para colocar na sua requisição de retirada.</p>
+        </div>
+      </div>
+
+      <div id="kiosk-products-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        <!-- Renderizado dinamicamente via JS com fotos bonitas e status -->
+      </div>
+    </div>
+
+    <!-- Histórico Recente de Retiradas da Empresa (Transparência) -->
+    <div class="bg-slate-800/60 border border-slate-700/60 rounded-3xl p-6">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-base font-bold text-white flex items-center gap-2">
+          <i data-lucide="receipt" class="w-5 h-5 text-emerald-400"></i>
+          <span>Últimas Retiradas Realizadas por Colaboradores</span>
+        </h3>
+        <button onclick="loadCompanyRequisitions()" class="text-xs text-emerald-400 hover:text-emerald-300 font-semibold flex items-center gap-1">
+          <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+          <span>Atualizar</span>
+        </button>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-xs">
+          <thead class="text-slate-400 uppercase text-[10px] border-b border-slate-700">
+            <tr>
+              <th class="py-2.5 px-3">Código / Ticket</th>
+              <th class="py-2.5 px-3">Colaborador</th>
+              <th class="py-2.5 px-3">Departamento</th>
+              <th class="py-2.5 px-3">Materiais Retirados</th>
+              <th class="py-2.5 px-3">Data / Hora</th>
+              <th class="py-2.5 px-3 text-right">Status</th>
+            </tr>
+          </thead>
+          <tbody id="company-requisitions-body" class="divide-y divide-slate-700/40 text-slate-300">
+            <tr><td colspan="6" class="py-4 text-center text-slate-500">Nenhuma retirada recente registrada.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- ======================================================== -->
+  <!-- MODO 2: OPERAÇÕES WMS (MODO AVANÇADO DE GALPÃO)          -->
+  <!-- ======================================================== -->
+  <div id="section-wms-mode" class="hidden max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+    
+    <!-- VIEW DASHBOARD WMS -->
+    <div id="view-dashboard" class="space-y-6">
+      <!-- Banner Informativo -->
+      <div class="relative overflow-hidden rounded-2xl bg-gradient-to-r from-slate-800 via-slate-800 to-emerald-950/40 p-6 border border-slate-700/80 shadow-xl">
+        <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <h1 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight flex items-center gap-2">
+              Painel Operacional WMS & Armazém
+            </h1>
+            <p class="text-slate-400 text-sm mt-1 max-w-2xl">
+              Controle avançado de picking, pulmão, auditorias de acuracidade e gestão técnica de estoque.
+            </p>
+          </div>
+          <div class="flex items-center gap-2">
+            <button onclick="navigate('lookup')" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold shadow-lg shadow-emerald-600/30 flex items-center gap-2 transition">
+              <i data-lucide="search" class="w-4 h-4"></i>
+              <span>Consultar Produto</span>
+            </button>
+            <button onclick="navigate('inventory')" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-slate-200 rounded-xl text-xs font-bold flex items-center gap-2 transition">
+              <i data-lucide="clipboard-check" class="w-4 h-4 text-emerald-400"></i>
+              <span>Fazer Inventário</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- KPI Grid WMS -->
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="bg-slate-800/80 border border-slate-700/60 rounded-xl p-4 shadow-sm">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-medium text-slate-400 uppercase tracking-wider">SKUs Ativos</span>
+            <div class="w-8 h-8 rounded-lg bg-blue-500/10 text-blue-400 flex items-center justify-center">
+              <i data-lucide="boxes" class="w-4 h-4"></i>
+            </div>
+          </div>
+          <div class="mt-2 flex items-baseline">
+            <span id="kpi-skus" class="text-2xl sm:text-3xl font-black text-white">--</span>
+            <span class="ml-2 text-xs text-slate-400">itens</span>
+          </div>
+        </div>
+
+        <div class="bg-slate-800/80 border border-slate-700/60 rounded-xl p-4 shadow-sm">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-medium text-slate-400 uppercase tracking-wider">Saldo Total</span>
+            <div class="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center">
+              <i data-lucide="package" class="w-4 h-4"></i>
+            </div>
+          </div>
+          <div class="mt-2 flex items-baseline">
+            <span id="kpi-total-units" class="text-2xl sm:text-3xl font-black text-white">--</span>
+            <span class="ml-2 text-xs text-slate-400">unidades</span>
+          </div>
+        </div>
+
+        <div onclick="filterProductsByStatus('ZERO')" class="cursor-pointer bg-slate-800/80 border border-rose-900/40 hover:border-rose-500/60 rounded-xl p-4 shadow-sm transition">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-medium text-rose-300 uppercase tracking-wider">🛑 Estoque Zerado</span>
+            <div class="w-8 h-8 rounded-lg bg-rose-500/10 text-rose-400 flex items-center justify-center">
+              <i data-lucide="alert-octagon" class="w-4 h-4"></i>
+            </div>
+          </div>
+          <div class="mt-2 flex items-baseline">
+            <span id="kpi-zero-stock" class="text-2xl sm:text-3xl font-black text-rose-400">--</span>
+            <span class="ml-2 text-xs text-rose-300/70">alerta</span>
+          </div>
+        </div>
+
+        <div onclick="filterProductsByStatus('CRITICAL')" class="cursor-pointer bg-slate-800/80 border border-amber-900/40 hover:border-amber-500/60 rounded-xl p-4 shadow-sm transition">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-medium text-amber-300 uppercase tracking-wider">⚠️ Estoque Crítico</span>
+            <div class="w-8 h-8 rounded-lg bg-amber-500/10 text-amber-400 flex items-center justify-center">
+              <i data-lucide="alert-triangle" class="w-4 h-4"></i>
+            </div>
+          </div>
+          <div class="mt-2 flex items-baseline">
+            <span id="kpi-critical-stock" class="text-2xl sm:text-3xl font-black text-amber-400">--</span>
+            <span class="ml-2 text-xs text-amber-300/70">repor</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Duas Colunas: Ocupação do Armazém & Movimentações Recentes -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div class="bg-slate-800/80 border border-slate-700/60 rounded-2xl p-5">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="font-bold text-base text-white flex items-center gap-2">
+              <i data-lucide="warehouse" class="w-4 h-4 text-emerald-400"></i>
+              <span>Ocupação por Família</span>
+            </h2>
+            <span id="kpi-locations-tag" class="text-xs px-2 py-0.5 rounded bg-slate-700 text-slate-300">--</span>
+          </div>
+          <div id="category-distribution" class="space-y-3"></div>
+        </div>
+
+        <div class="lg:col-span-2 bg-slate-800/80 border border-slate-700/60 rounded-2xl p-5">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="font-bold text-base text-white flex items-center gap-2">
+              <i data-lucide="activity" class="w-4 h-4 text-emerald-400"></i>
+              <span>Últimos Lançamentos & Auditoria</span>
+            </h2>
+            <button onclick="navigate('transfers')" class="text-xs text-emerald-400 hover:text-emerald-300 font-semibold flex items-center gap-1">
+              <span>Ver todas</span>
+              <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
+            </button>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+              <thead class="text-slate-400 border-b border-slate-700/60">
+                <tr>
+                  <th class="pb-2 font-semibold">Tipo</th>
+                  <th class="pb-2 font-semibold">SKU / Item</th>
+                  <th class="pb-2 font-semibold">Origem → Destino</th>
+                  <th class="pb-2 font-semibold text-right">Qtd</th>
+                  <th class="pb-2 font-semibold text-right">Data/Hora</th>
+                </tr>
+              </thead>
+              <tbody id="recent-movements-body" class="divide-y divide-slate-700/40 text-slate-300">
+                <tr><td colspan="5" class="py-4 text-center text-slate-500">Carregando movimentações...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- VIEW 2: LOCALIZAÇÃO & CONSULTA (WMS) -->
+    <div id="view-lookup" class="hidden space-y-6">
+      <div class="bg-slate-800/90 border border-slate-700 rounded-2xl p-4 sm:p-6 shadow-xl">
+        <div class="flex flex-col sm:flex-row gap-3">
+          <div class="relative flex-1">
+            <i data-lucide="search" class="w-5 h-5 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"></i>
+            <input 
+              type="text" 
+              id="lookup-input" 
+              placeholder="Digite SKU (ex: FIT-3M-PR), Código EAN, ou Nome..."
+              class="w-full bg-slate-900 border border-slate-700 rounded-xl pl-11 pr-24 py-3 text-sm text-white placeholder-slate-400 focus:outline-none focus:border-emerald-500"
+              onkeyup="handleSearchKeyup(event)"
+            >
+          </div>
+          <div class="flex gap-2">
+            <select id="lookup-category" onchange="performSearch()" class="bg-slate-900 border border-slate-700 text-slate-200 text-xs rounded-xl px-3 py-2">
+              <option value="ALL">Todas Categorias</option>
+              <option value="Elétrica">Elétrica</option>
+              <option value="EPI">EPI</option>
+              <option value="Fixadores">Fixadores</option>
+              <option value="Armazenagem">Armazenagem</option>
+            </select>
+            <button onclick="performSearch()" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-semibold shadow-md transition">Buscar</button>
+          </div>
+        </div>
+      </div>
+      <div id="lookup-results" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+    </div>
+
+    <!-- VIEW 3: INVENTÁRIO (WMS) -->
+    <div id="view-inventory" class="hidden space-y-6">
+      <div class="bg-slate-800/90 border border-slate-700 rounded-2xl p-4 sm:p-6 shadow-xl">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
+          <div>
+            <h2 class="text-xl font-extrabold text-white flex items-center gap-2">
+              <i data-lucide="clipboard-list" class="w-5 h-5 text-emerald-400"></i>
+              <span>Auditoria e Contagem Física de Armazém</span>
+            </h2>
+            <p class="text-slate-400 text-xs mt-1">Conferência com regra estrita de confirmação para alteração de saldo.</p>
+          </div>
+          <div class="flex gap-2">
+            <button onclick="loadInventoryData()" class="px-3 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-xl text-xs font-medium flex items-center gap-1.5 transition">
+              <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+              <span>Atualizar</span>
+            </button>
+          </div>
+        </div>
+        <div class="overflow-x-auto rounded-xl border border-slate-700/80">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-slate-900 text-slate-400 font-semibold uppercase tracking-wider text-[11px] border-b border-slate-700">
+              <tr>
+                <th class="py-3 px-3">SKU</th>
+                <th class="py-3 px-3">Descrição</th>
+                <th class="py-3 px-3">Endereço</th>
+                <th class="py-3 px-3 text-center">Qtd. Sistema</th>
+                <th class="py-3 px-3 text-center">Qtd. Contada</th>
+                <th class="py-3 px-3 text-center">Divergência</th>
+                <th class="py-3 px-3">Status</th>
+                <th class="py-3 px-3 text-right">Ação</th>
+              </tr>
+            </thead>
+            <tbody id="inventory-table-body" class="divide-y divide-slate-700/60 bg-slate-800/40 text-slate-200">
+              <tr><td colspan="8" class="py-6 text-center text-slate-500">Carregando itens...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- VIEW 4: AUDITORIA & TRANSFERÊNCIAS -->
+    <div id="view-transfers" class="hidden space-y-6">
+      <div class="bg-slate-800/90 border border-slate-700 rounded-2xl p-5 shadow-xl">
+        <h2 class="text-base font-bold text-white flex items-center gap-2 mb-4">
+          <i data-lucide="history" class="w-5 h-5 text-emerald-400"></i>
+          <span>Auditoria de Movimentações WMS</span>
+        </h2>
+        <div class="overflow-x-auto max-h-[500px]">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-slate-900/90 sticky top-0 text-slate-400 uppercase text-[10px] border-b border-slate-700">
+              <tr>
+                <th class="py-2.5 px-3">Data / Hora</th>
+                <th class="py-2.5 px-3">Tipo</th>
+                <th class="py-2.5 px-3">Produto</th>
+                <th class="py-2.5 px-3">Origem → Destino</th>
+                <th class="py-2.5 px-3 text-right">Qtd</th>
+                <th class="py-2.5 px-3 text-right">Saldo Final</th>
+                <th class="py-2.5 px-3">Operador / Motivo</th>
+              </tr>
+            </thead>
+            <tbody id="movements-history-body" class="divide-y divide-slate-700/60 text-slate-300">
+              <tr><td colspan="7" class="py-6 text-center text-slate-500">Carregando histórico...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- MODAL / TELA DE CHAT IA OPERACIONAL                      -->
+  <!-- ======================================================== -->
+  <div id="view-chat" class="hidden max-w-4xl mx-auto px-4 py-6">
+    <div class="bg-slate-800/95 border border-slate-700 rounded-3xl shadow-2xl flex flex-col h-[75vh] overflow-hidden">
+      <!-- Header do Chat -->
+      <div class="px-5 py-4 bg-slate-900 border-b border-slate-700/80 flex items-center justify-between">
+        <div class="flex items-center space-x-3">
+          <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-emerald-500 to-teal-400 flex items-center justify-center text-white shadow-md">
+            <i data-lucide="bot" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h3 class="text-sm font-bold text-white leading-tight">Almo - Assistente de Materiais & WMS</h3>
+            <p class="text-[11px] text-emerald-400 font-medium">Tire dúvidas, peça kits e consulte localizações</p>
+          </div>
+        </div>
+        <button onclick="clearChat()" class="text-xs text-slate-400 hover:text-slate-200 px-3 py-1.5 rounded-xl bg-slate-800 border border-slate-700">
+          Limpar
+        </button>
+      </div>
+
+      <!-- Mensagens -->
+      <div id="chat-messages" class="flex-1 p-4 overflow-y-auto space-y-4">
+        <div class="flex items-start space-x-3">
+          <div class="w-8 h-8 rounded-xl bg-emerald-600 flex items-center justify-center text-white text-xs shrink-0 mt-0.5">
+            <i data-lucide="bot" class="w-4 h-4"></i>
+          </div>
+          <div class="bg-slate-900/90 border border-slate-700/80 rounded-2xl p-4 max-w-xl text-xs sm:text-sm text-slate-200 shadow-md">
+            <p class="font-bold text-emerald-400 mb-1">Olá! Sou o assistente de materiais da empresa.</p>
+            <p class="text-slate-300">
+              Posso te ajudar a encontrar onde está qualquer produto no galpão, sugerir kits para seu setor ou calcular divergências de inventário.
+            </p>
+            <div class="mt-3 pt-2 border-t border-slate-700 text-xs text-slate-400">
+              <span class="font-semibold text-slate-300">Sugestões rápidas:</span>
+              <div class="flex flex-wrap gap-1.5 mt-2">
+                <button onclick="sendChatMessage('Onde está a fita isolante 3M preta?')" class="chat-chip">"Onde está a fita isolante 3M preta?"</button>
+                <button onclick="sendChatMessage('Preciso de um kit para visita técnica na fábrica')" class="chat-chip">"Kit visita fábrica"</button>
+                <button onclick="sendChatMessage('Onde acho o item SKU-9920 e quanto tem?')" class="chat-chip">"Luva Nitrílica (Multi-endereço)"</button>
+                <button onclick="sendChatMessage('Contei a caixa organizadora no endereço G2-C03-N1 e tem 15 unidades, mas o sistema marca 20.')" class="chat-chip">"Divergência de Contagem"</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sugestões Dinâmicas -->
+      <div id="chat-suggestions" class="px-4 py-2 bg-slate-900/50 border-t border-slate-700/40 flex flex-wrap gap-1.5 text-xs"></div>
+
+      <!-- Input do Chat -->
+      <div class="p-3 bg-slate-900 border-t border-slate-700">
+        <form onsubmit="handleChatSubmit(event)" class="flex gap-2">
+          <input 
+            type="text" 
+            id="chat-input" 
+            placeholder="Digite sua dúvida ou material desejado..." 
+            class="flex-1 bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white placeholder-slate-400 focus:outline-none focus:border-emerald-500"
+            autocomplete="off"
+          >
+          <button type="submit" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-sm font-bold shadow-md transition">
+            Enviar
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- GAVETA LATERAL DO CARRINHO DE RETIRADA (DRAWER)          -->
+  <!-- ======================================================== -->
+  <div id="cart-drawer-backdrop" onclick="toggleCartDrawer(false)" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden transition-opacity"></div>
+  <div id="cart-drawer" class="fixed top-0 right-0 bottom-0 w-full max-w-md bg-slate-800 border-l border-slate-700 z-50 shadow-2xl flex flex-col transform translate-x-full transition-transform duration-300 ease-in-out">
+    
+    <!-- Header do Carrinho -->
+    <div class="p-4 bg-slate-900 border-b border-slate-700 flex items-center justify-between">
+      <div class="flex items-center space-x-2">
+        <div class="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold">
+          <i data-lucide="shopping-cart" class="w-4 h-4"></i>
+        </div>
+        <div>
+          <h3 class="text-sm font-bold text-white">Minha Cesta de Materiais</h3>
+          <p class="text-[11px] text-slate-400" id="cart-drawer-subtitle">0 itens selecionados</p>
+        </div>
+      </div>
+      <button onclick="toggleCartDrawer(false)" class="p-2 text-slate-400 hover:text-white rounded-lg">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+    </div>
+
+    <!-- Lista de Itens do Carrinho -->
+    <div id="cart-items-container" class="flex-1 p-4 overflow-y-auto space-y-3">
+      <!-- Preenchido via JS -->
+    </div>
+
+    <!-- Formulário do Solicitante & Botão de Confirmação -->
+    <div class="p-4 bg-slate-900 border-t border-slate-700 space-y-3">
+      <div class="grid grid-cols-2 gap-2 text-xs">
+        <div>
+          <label class="block font-semibold text-slate-300 mb-1">Seu Nome / Matrícula *</label>
+          <input type="text" id="req-requester-name" placeholder="Ex: Lucas Silva" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-white focus:border-emerald-500">
+        </div>
+        <div>
+          <label class="block font-semibold text-slate-300 mb-1">Seu Departamento *</label>
+          <select id="req-department" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-white focus:border-emerald-500">
+            <option value="Manutenção">Manutenção</option>
+            <option value="Operações / Fábrica">Operações / Fábrica</option>
+            <option value="TI / Tecnologia">TI / Tecnologia</option>
+            <option value="Engenharia">Engenharia</option>
+            <option value="Administrativo / RH">Administrativo / RH</option>
+            <option value="Outro">Outro</option>
+          </select>
+        </div>
+      </div>
+
+      <button 
+        id="btn-submit-requisition" 
+        onclick="submitRequisition()" 
+        class="w-full py-3 bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white rounded-xl text-xs font-black shadow-lg shadow-emerald-600/30 flex items-center justify-center gap-2 transition"
+      >
+        <i data-lucide="check-circle" class="w-4 h-4"></i>
+        <span>Confirmar Retirada & Gerar Comprovante</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- MODAL DE COMPROVANTE DIGITAL DE RETIRADA (TICKET)        -->
+  <!-- ======================================================== -->
+  <div id="modal-ticket" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-slate-800 border-2 border-emerald-500/60 rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-5 text-center relative overflow-hidden">
+      <div class="w-16 h-16 rounded-3xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center mx-auto text-3xl shadow-lg border border-emerald-500/30">
+        🎉
+      </div>
+
+      <div>
+        <h3 class="text-xl font-black text-white">Retirada Liberada com Sucesso!</h3>
+        <p class="text-xs text-slate-300 mt-1">Materiais baixados no estoque da empresa.</p>
+      </div>
+
+      <!-- Ticket Card Estilizado -->
+      <div class="bg-slate-900 border border-slate-700 rounded-2xl p-4 text-left space-y-3 font-mono text-xs">
+        <div class="flex justify-between items-center border-b border-slate-800 pb-2">
+          <span class="text-slate-400">Código de Retirada:</span>
+          <span id="ticket-code" class="text-emerald-400 font-black text-sm">REQ-000000</span>
+        </div>
+        <div class="flex justify-between items-center">
+          <span class="text-slate-400">Colaborador:</span>
+          <span id="ticket-requester" class="text-white font-bold">--</span>
+        </div>
+        <div class="flex justify-between items-center">
+          <span class="text-slate-400">Departamento:</span>
+          <span id="ticket-department" class="text-slate-300">--</span>
+        </div>
+
+        <div class="pt-2 border-t border-slate-800">
+          <span class="text-[10px] uppercase font-bold text-slate-400 block mb-1">Onde pegar cada item no Galpão:</span>
+          <div id="ticket-items-list" class="space-y-1.5 text-[11px]">
+            <!-- Injetado dinamicamente -->
+          </div>
+        </div>
+      </div>
+
+      <div class="flex gap-2">
+        <button onclick="closeTicketModal()" class="flex-1 py-2.5 bg-slate-700 hover:bg-slate-600 text-white rounded-xl text-xs font-bold transition">
+          Fechar
+        </button>
+        <button onclick="window.print()" class="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5">
+          <i data-lucide="printer" class="w-4 h-4"></i>
+          <span>Imprimir / Salvar</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- MODAIS EXISTENTES: AJUSTE, MAPA, LEITOR DE BARRAS        -->
+  <!-- ======================================================== -->
+
+  <!-- Modal: Confirmação de Ajuste de Saldo (Regra SKILL.md) -->
+  <div id="modal-confirm-adjustment" class="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-slate-800 border border-amber-500/50 rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4">
+      <div class="flex items-center space-x-3 text-amber-400">
+        <div class="w-10 h-10 rounded-xl bg-amber-500/20 border border-amber-500/30 flex items-center justify-center">
+          <i data-lucide="alert-triangle" class="w-6 h-6"></i>
+        </div>
+        <div>
+          <h3 class="text-lg font-bold text-white">Confirmação de Ajuste</h3>
+          <p class="text-xs text-amber-300">Ação com impacto no saldo de armazém</p>
+        </div>
+      </div>
+
+      <div class="bg-slate-900/90 rounded-xl p-4 border border-slate-700/80 text-xs space-y-2">
+        <div class="flex justify-between">
+          <span class="text-slate-400">Produto:</span>
+          <span id="modal-adj-product" class="font-bold text-white text-right">--</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-slate-400">Endereço:</span>
+          <span id="modal-adj-location" class="font-mono font-bold text-emerald-400">--</span>
+        </div>
+        <div class="border-t border-slate-700/60 pt-2 flex justify-between">
+          <span class="text-slate-400">Saldo Anterior (Sistema):</span>
+          <span id="modal-adj-system-qty" class="font-bold text-slate-300">-- un.</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-slate-400">Nova Quantidade Contada:</span>
+          <span id="modal-adj-counted-qty" class="font-bold text-amber-400 text-sm">-- un.</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-slate-400">Variação (Delta):</span>
+          <span id="modal-adj-divergence" class="font-bold font-mono">--</span>
+        </div>
+      </div>
+
+      <div class="flex space-x-2 pt-2">
+        <button onclick="closeAdjustmentModal()" class="flex-1 py-2.5 rounded-xl bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs font-semibold">
+          Cancelar
+        </button>
+        <button id="btn-execute-adjustment" onclick="executeConfirmedAdjustment()" class="flex-1 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-bold shadow-lg shadow-amber-500/20">
+          Confirmar Ajuste
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Mapa Esquemático do Galpão -->
+  <div id="modal-warehouse-map" class="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-slate-800 border border-slate-700 rounded-2xl max-w-2xl w-full p-6 shadow-2xl space-y-4">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center space-x-2">
+          <i data-lucide="map" class="w-5 h-5 text-emerald-400"></i>
+          <h3 class="text-lg font-bold text-white">Mapa Esquemático de Endereçamento</h3>
+        </div>
+        <button onclick="closeWarehouseMapModal()" class="text-slate-400 hover:text-white">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="p-4 bg-slate-900 rounded-xl border border-slate-700 text-center">
+        <div class="text-xs text-slate-400 mb-2">Posição do Item no Piso de Armazém:</div>
+        <div id="map-target-title" class="text-base font-bold text-emerald-400 mb-4">Galpão G1 - Corredor B</div>
+
+        <div class="grid grid-cols-4 gap-2 text-xs">
+          <div id="map-cell-A" class="map-cell p-4 rounded-lg bg-slate-800 border border-slate-700">
+            <div class="font-bold text-slate-300">Corredor A</div>
+            <div class="text-[10px] text-slate-400 mt-1">EPIs & Segurança</div>
+          </div>
+          <div id="map-cell-B" class="map-cell p-4 rounded-lg bg-slate-800 border border-slate-700">
+            <div class="font-bold text-slate-300">Corredor B</div>
+            <div class="text-[10px] text-slate-400 mt-1">Materiais Elétricos</div>
+          </div>
+          <div id="map-cell-C02" class="map-cell p-4 rounded-lg bg-slate-800 border border-slate-700">
+            <div class="font-bold text-slate-300">Corredor C02</div>
+            <div class="text-[10px] text-slate-400 mt-1">Fixadores & Parafusos</div>
+          </div>
+          <div id="map-cell-PULMAO" class="map-cell p-4 rounded-lg bg-slate-800 border border-slate-700">
+            <div class="font-bold text-slate-300">Pulmão R05</div>
+            <div class="text-[10px] text-slate-400 mt-1">Sobrerrack / Alto Volume</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex justify-end">
+        <button onclick="closeWarehouseMapModal()" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-xl text-xs font-semibold">
+          Fechar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Simulador de Leitor de Código de Barras -->
+  <div id="modal-barcode" class="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-slate-800 border border-slate-700 rounded-2xl max-w-sm w-full p-6 shadow-2xl space-y-4">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center space-x-2 text-emerald-400">
+          <i data-lucide="scan-line" class="w-5 h-5"></i>
+          <h3 class="text-base font-bold text-white">Leitor de Código de Barras</h3>
+        </div>
+        <button onclick="closeBarcodeScannerModal()" class="text-slate-400 hover:text-white">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <p class="text-xs text-slate-300">
+        Simulador de bip para testes ou coletores acoplados:
+      </p>
+
+      <div class="space-y-3">
+        <input 
+          type="text" 
+          id="barcode-input" 
+          placeholder="Aponte o leitor ou digite o EAN..." 
+          class="w-full bg-slate-900 border-2 border-emerald-500 rounded-xl p-3 text-center text-sm font-mono tracking-widest text-emerald-300 focus:outline-none"
+          onkeydown="if(event.key === 'Enter') handleBarcodeSubmit()"
+        >
+
+        <div class="text-[11px] text-slate-400">
+          <span class="font-semibold text-slate-300">Códigos rápidos para bipar:</span>
+          <div class="grid grid-cols-2 gap-1.5 mt-2">
+            <button onclick="scanCode('7891122334455')" class="p-1.5 bg-slate-700/60 hover:bg-slate-700 rounded text-left text-xs truncate">Fita 3M: 7891122334455</button>
+            <button onclick="scanCode('7892233445566')" class="p-1.5 bg-slate-700/60 hover:bg-slate-700 rounded text-left text-xs truncate">Luva G: 7892233445566</button>
+            <button onclick="scanCode('7895566778899')" class="p-1.5 bg-slate-700/60 hover:bg-slate-700 rounded text-left text-xs truncate">Caixa 30L: 7895566778899</button>
+            <button onclick="scanCode('7891234567890')" class="p-1.5 bg-slate-700/60 hover:bg-slate-700 rounded text-left text-xs truncate">EAN Inexistente</button>
+          </div>
+        </div>
+
+        <button onclick="handleBarcodeSubmit()" class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold transition">
+          Bipar Código (Enter)
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="/js/api.js"></script>
+  <script src="/js/app.js"></script>
+</body>
+</html>

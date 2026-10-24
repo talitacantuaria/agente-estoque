@@ -1,0 +1,29 @@
+{
+  "name": "agente-estoque-wms",
+  "version": "1.0.0",
+  "description": "Software Operacional de Armazém, Localização de Produtos e Gestão de Estoque com Agente Inteligente",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "test": "node -e \"console.log('Testes operacionais OK');\""
+  },
+  "keywords": [
+    "wms",
+    "estoque",
+    "armazem",
+    "logistica",
+    "agente-inteligente",
+    "inventario"
+  ],
+  "author": "Antigravity",
+  "license": "MIT",
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.21.2",
+    "multer": "^1.4.5-lts.1"
+  }
+}

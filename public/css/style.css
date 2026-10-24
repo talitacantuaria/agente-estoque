@@ -1,0 +1,127 @@
+/* public/css/style.css */
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #0f172a;
+}
+::-webkit-scrollbar-thumb {
+  background: #334155;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #475569;
+}
+
+/* Mode Switch Buttons */
+.mode-switch-btn.active {
+  background-color: #16a34a;
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(22, 163, 74, 0.35);
+}
+
+/* Category Chips in Kiosk */
+.kiosk-cat-chip {
+  background-color: rgba(30, 41, 59, 0.8);
+  border: 1px solid rgba(71, 85, 105, 0.6);
+  color: #cbd5e1;
+}
+.kiosk-cat-chip:hover {
+  background-color: rgba(51, 65, 85, 0.9);
+  color: #ffffff;
+  border-color: #10b981;
+}
+.kiosk-cat-chip.active {
+  background-color: #10b981;
+  border-color: #059669;
+  color: #0f172a;
+  font-weight: 800;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+}
+
+/* Navigation buttons (WMS) */
+.nav-btn.active {
+  background-color: rgba(16, 185, 129, 0.15);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+.nav-btn:not(.active) {
+  color: #94a3b8;
+}
+.nav-btn:not(.active):hover {
+  color: #f1f5f9;
+  background-color: rgba(51, 65, 85, 0.5);
+}
+
+/* Chat bubble styling */
+.chat-chip {
+  padding: 4px 10px;
+  border-radius: 9999px;
+  background-color: rgba(51, 65, 85, 0.7);
+  border: 1px solid rgba(71, 85, 105, 0.5);
+  color: #cbd5e1;
+  font-size: 11px;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+.chat-chip:hover {
+  background-color: rgba(16, 185, 129, 0.2);
+  border-color: rgba(16, 185, 129, 0.4);
+  color: #6ee7b7;
+}
+
+/* Showcase Product Cards */
+.kiosk-product-card {
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.kiosk-product-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(16, 185, 129, 0.5);
+  box-shadow: 0 12px 24px -10px rgba(0, 0, 0, 0.6), 0 0 16px rgba(16, 185, 129, 0.15);
+}
+
+/* Highlight cell in Warehouse Map */
+.map-cell.active-target {
+  background-color: rgba(16, 185, 129, 0.25) !important;
+  border-color: #10b981 !important;
+  box-shadow: 0 0 15px rgba(16, 185, 129, 0.4);
+  transform: scale(1.03);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Toast animations */
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.toast-slide-in {
+  animation: slideIn 0.25s ease-out forwards;
+}
+
+/* Print Ticket Styles */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  #modal-ticket, #modal-ticket * {
+    visibility: visible;
+  }
+  #modal-ticket {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    background: white !important;
+    color: black !important;
+  }
+}

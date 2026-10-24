@@ -1,0 +1,11 @@
+SKU;EAN;Descricao;Categoria;Unidade;Endereco;Quantidade;EstoqueMinimo
+FIT-3M-PR;7891122334455;Fita Isolante 3M Imperial Preta 19mm x 20m;Elétrica;UN;G1-B-04-N2-PA;48;20
+SKU-9920;7892233445566;Luva de Proteção Nitrílica Verde G (Picking);EPI;PAR;G1-A-01-N1-P01;120;100
+SKU-9920;7892233445566;Luva de Proteção Nitrílica Verde G (Pulmão);EPI;PAR;G1-PULMAO-R05;500;100
+SKU-001;7893344556677;Parafuso Sextavado Aço Zincado 8mm x 40mm;Fixadores;UN;G1-C02-R01-N2;150;50
+SKU-002;7894455667788;Porca M8 Auto-travante com Nylon Zincada;Fixadores;UN;G1-C02-R01-N3;0;50
+CX-ORG-30L;7895566778899;Caixa Organizadora Plástica Transparente 30L;Armazenagem;UN;G2-C03-N1;20;10
+DISJ-32A;7896677889900;Disjuntor Bipolar Curva C 32A DIN;Elétrica;UN;G1-B-02-N1-P03;6;15
+CABO-2.5-AZ;7897788990011;Cabo Flexível 750V 2,5mm Rolo 100m Azul;Elétrica;ROLO;G1-B-03-N1-P01;35;10
+BOT-SEG-42;7898899001122;Botina de Segurança em Couro Bico de Aço 42;EPI;PAR;G1-A-03-N2-P02;18;12
+
